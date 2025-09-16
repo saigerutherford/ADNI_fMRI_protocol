@@ -11,6 +11,6 @@ Step 3.) Run QC (Zeshawn reports) to assess data availability.
 
 ## Stage 2. More QC (mriqc) & Preprocessing (fMRIPrep)
 
-Step 1.) Run MRIQC to generate automated metrics and qc reports.
+Step 1.) Run [MRIQC](https://mriqc.readthedocs.io/en/latest/index.html) to generate automated metrics and qc reports.
 
-Step 2.) Run fMRIPrep on data that passed QC. 
+Step 2.) Run [fMRIPrep](https://fmriprep.org/en/stable/index.html) on data that passed QC. 
