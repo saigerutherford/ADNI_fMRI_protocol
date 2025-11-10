@@ -8,3 +8,5 @@ To download the ADNI dataset you first need to register to the [LONI Image & Da
 <div>
 <img src="ADNI_data_access.png" width="800"/>
 </div>
+
+Now, continue on to [Step 2.](https://github.com/saigerutherford/AD_biomarkers/blob/main/s2_download/README.md)
