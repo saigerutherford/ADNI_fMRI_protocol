@@ -150,3 +150,5 @@ Once you are successfully logged in, the home page will look like this.
 <div>
 <img src="screenshots/ADNI_step2.23.png" width="800"/>
 </div>
+
+Now, continue on to [Step 3.](https://github.com/saigerutherford/AD_biomarkers/blob/main/s3_organize/README.md)
