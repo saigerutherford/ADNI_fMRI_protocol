@@ -68,7 +68,7 @@ Once you are successfully logged in, the home page will look like this.
 <img src="ADNI_step2.10.png" width="800"/>
 </div>
 
-2.11.) Then click on Add to Collection
+**2.11.)** Then click on Add to Collection
 
 <div>
 <img src="ADNI_step2.11.png" width="800"/>
@@ -127,7 +127,7 @@ Once you are successfully logged in, the home page will look like this.
 <img src="ADNI_step2.19.png" width="800"/>
 </div>
 
-** 2.22.)** You must also download the Study files (behavioral, clinical, demographics, study information/notes, etc.). Again, click on the Search & Download button again, and a drop-down menu will show. Click on Study Files.
+**2.22.)** You must also download the Study files (behavioral, clinical, demographics, study information/notes, etc.). Again, click on the Search & Download button again, and a drop-down menu will show. Click on Study Files.
 
 <div>
 <img src="ADNI_step2.20.png" width="800"/>
@@ -150,9 +150,3 @@ Once you are successfully logged in, the home page will look like this.
 <div>
 <img src="ADNI_step2.23.png" width="800"/>
 </div>
-
-
-
-
-
-
