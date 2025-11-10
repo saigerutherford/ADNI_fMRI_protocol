@@ -27,3 +27,5 @@
 
 
 **4.7.)** Once all Clinica jobs finish running, we need to merge the individual BIDS folders into the same directory. This can be done using the script `merge_individual_bids.sh` (write script to merge participants.tsv, fmri_paths.tsv, t1_paths,tsv, flair_paths.tsv then move data into the same directory). 
+
+Now, continue on to [Step 5.](https://github.com/saigerutherford/AD_biomarkers/blob/main/s5_post_clinica_qc/README.md)
