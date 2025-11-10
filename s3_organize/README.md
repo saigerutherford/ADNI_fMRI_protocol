@@ -3,7 +3,7 @@
 3.1.) First, move all downloaded files (.zip, .csv, .tar.gz) from your downloads/ directory into a new directory where you would like to store the study data. We will refer to this directory as `ADNI_data/`, but you can name it whatever you choose. 
 
 
-3.2.) Verify that all files are present. Depending on how many files you chose in step 2.15 during the download of the imaging data (e.g., 10), you should have 10 imaging zip files, a metadata zip file, the URL list CSV file, a CSV file describing the variables used in creating the imaging collection (from step 2.12), and a zipped file of the behavioral data.
+3.2.) Verify that all files are present. Depending on how many files you chose (in step 2.19) during the download of the imaging data (e.g., 10), you should have 10 imaging zip files, a metadata zip file, the URL list CSV file, a CSV file describing the variables used in creating the imaging collection (from step 2.12), and a zipped file of the behavioral data.
 
 
 3.3.) Create sub-directories to store: a) imaging data, b) metadata, c) scripts, d) behavioral data. Move the zip & CSV files into the correct sub-directories.
