@@ -89,7 +89,6 @@ Once you are successfully logged in, the home page will look like this.
 </div>
 
 **2.15.)** Click on the CSV button bellow the collection name. This will download the CSV file showing all of the criteria you used to build the collection (useful for verifying the download).
-<img width="1113" height="31" alt="image" src="https://github.com/user-attachments/assets/61f6e8a5-048c-495c-9c29-187f2c919e69" />
 
 <div>
 <img src="ADNI_step2.14.png" width="800"/>
@@ -106,5 +105,54 @@ Once you are successfully logged in, the home page will look like this.
 <div>
 <img src="ADNI_step2.16.png" width="800"/>
 </div>
+
+**2.18.)** A new browser tab or window should open, displaying a page similar to this with your download links.
+
+<div>
+<img src="ADNI_step2.17.png" width="800"/>
+</div>
+
+**2.19.)** You can click on the drop-down menu (under the Group Files As) , and it will show different ways to group the downloads. We advise you to group files as 10 zip files. 
+
+<div>
+<img src="ADNI_step2.18.png" width="800"/>
+</div>
+
+**2.20.)** Click on the Zip File 1, etc. links, and the download should start.
+
+
+**2.21.)** Click on the Metadata and URL List links to download the associated filenames CSVs and metadata.
+
+<div>
+<img src="ADNI_step2.19.png" width="800"/>
+</div>
+
+** 2.22.)** You must also download the Study files (behavioral, clinical, demographics, study information/notes, etc.). Again, click on the Search & Download button again, and a drop-down menu will show. Click on Study Files.
+
+<div>
+<img src="ADNI_step2.20.png" width="800"/>
+</div>
+
+**2.23.)** Use this page to select which files you want to download. 
+
+<div>
+<img src="ADNI_step2.21.png" width="800"/>
+</div>
+
+**2.24.)** You can also select all files (535 files, 290 GB). If you de-select ‘Biospecimen’ and ’Test Data’ after selecting all, then the download is only 2.0 GB (308 files).
+
+<div>
+<img src="ADNI_step2.22.png" width="800"/>
+</div>
+
+**2.25.)** Once you have made your selection, click on download at the bottom of the page. The download should start immediately. 
+
+<div>
+<img src="ADNI_step2.23.png" width="800"/>
+</div>
+
+
+
+
 
 
