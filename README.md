@@ -4,6 +4,10 @@ This repository contains detailed instructions and code for accessing, downloadi
 
 The repo is organized based on 8 steps. Each step has its own directory, with an additional README.md file that contains detailed instructions for that step. 
 
+<div>
+<img src="ADNI_protocol_overview.png" width="900"/>
+</div>
+
 ## Step 1.) Account and Access
 
 [s1_setup_account/](https://github.com/saigerutherford/AD_biomarkers/blob/main/s1_setup_account/README.md)
