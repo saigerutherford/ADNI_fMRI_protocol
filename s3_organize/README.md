@@ -63,7 +63,7 @@
 **3.8.)** Run `create_dicom_dirs_csv.sh`. This script will loop through all of the dicom directories and write a CSV file. We will use this CSV file to confirm that all of the downloaded files are present (compare it to the LONI IDA dicom CSV).
 
 
-**3.9.)** Use the python notebook `dicom_qc.ipynb` to compare the unzipped dicom directories with the image collection download list from ADNI. You can also use this notebook to isolate the necessary modalities for preprocessing (T1w, T2w, resting-state fMRI). The names of the dicom folders are inconsistent, so this notebook contains the dictionary for mapping the names of T1w, T2w, and rs-fMRI names across subjects and sessions. 
+**3.9.)** Use the python notebook `dicom_download_qc.ipynb` to compare the unzipped dicom directories with the image collection download list from ADNI. You can also use this notebook to isolate the necessary modalities for preprocessing (T1w, T2w, resting-state fMRI). The names of the dicom folders are inconsistent, so this notebook contains the dictionary for mapping the names of T1w, T2w, and rs-fMRI names across subjects and sessions. 
 
 
 **3.10.)** Once you have finalized the list of dicom directories, you can then use this notebook to create the list of subjects to pass onto the next step where we convert to NIFTI and BIDS-ify the data using Clinica. The subject list should be saved as a text file. 
