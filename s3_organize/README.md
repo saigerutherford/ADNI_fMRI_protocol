@@ -51,7 +51,7 @@
 **3.6.)** Subject IDs all have the following format:
 
 <div>
-<img src="screenshots/ADNI_step3.6.png" width="800"/>
+<img src="screenshots/ADNI_step3.6.png" width="400"/>
 </div>
 
 **3.7.)** Within each subject directory (e.g., 137_S_4536/) there is a sub-directory for each imaging modality (e.g., Accelerated_Sagittal_MPRAGE/, Axial_rsfMRI__Eyes_Open/). Within each imaging modality directory, there is a sub-directory for each scan date (e.g., 2017-11-02_13_22_02.0/, 2018-11-07_14_07_08.0/, 2019-11-12_16_09_56.0/, 2020-11-17_14_36_35.0/) and within each scan date directory there is an additional directory. Here is an example full path to the DICOMs: `137_S_4536/Accelerated_Sagittal_MPRAGE/2017-11-02_13_22_02.0/S627332/`.
@@ -67,3 +67,5 @@
 
 
 **3.10.)** Once you have finalized the list of dicom directories, you can then use this notebook to create the list of subjects to pass onto the next step where we convert to NIFTI and BIDS-ify the data using Clinica. The subject list should be saved as a text file. 
+
+Now, continue on to [Step 4.](https://github.com/saigerutherford/AD_biomarkers/blob/main/s4_clinica/README.md)
