@@ -1,21 +1,28 @@
 #!/bin/bash
 
+# MRIQC job array setup script for ADNI fMRI data on IU Big Red 200 HPC. 
+# This script will create job_array_input files and corresponding SLURM job array scripts to process subjects in batches of 499 (IU SLURM job max is 499).
+# Written by Saige Rutherford Wolfers
+
+# After running this script, manually submit each generated job array script (they will be in $sdir) with sbatch.
+
 # 1. Set paths
 base="/N/project/statadni/20250922_Saige"
-idir="${base}/adni_db/bids/participants"
-odir="${base}/mriqc/results"
-sdir="${odir}/scripts"
-logdir="${sdir}/logs"
-csv_path="${base}/fmriprep/slurm/final_heuristics_applied_all_subjects_sessions_grouped_CLEAN.csv"
-tmp_work_root="${odir}/tmp_workdirs"
-donedir="${sdir}/done" 
+idir="${base}/adni_db/bids/participants" # BIDS root input dir
+odir="${base}/mriqc/results" # output dir
+sdir="${odir}/scripts" # scripts dir
+logdir="${sdir}/logs" # logs dir
+csv_path="${base}/fmriprep/slurm/final_heuristics_applied_all_subjects_sessions_grouped_CLEAN.csv" # CSV with subject and session info
+tmp_work_root="${odir}/tmp_workdirs" # root for temporary work dirs
+donedir="${sdir}/done" # dir to track completed subjects
 
 # 2. Ensure required dirs
 mkdir -p "$sdir" "$logdir" "$odir/derivatives" "$base/singularity_images" "${odir}/tmp_workdirs" "$donedir"
 
 # 3. Set Apptainer image path
 module load apptainer
-img_path="${base}/singularity_images/mriqc-24.0.2.simg"
+img_path="${base}/singularity_images/mriqc-24.0.2.simg" # Apptainer image path to MRIQC version 24.0.2
+# Build the image if it doesn't exist
 if [ ! -f "$img_path" ]; then
     echo "Building container..."
     apptainer build "$img_path" "docker://nipreps/mriqc:24.0.2"
@@ -67,16 +74,11 @@ for chunk_file in ${split_prefix}*; do
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=32G
 #SBATCH --time=24:00:00
-#SBATCH --array=0-${max_index}%50
+#SBATCH --array=0-${max_index}%499
 #SBATCH -o /dev/null
 #SBATCH -e /dev/null # Setting it manually down below
 
 module load apptainer
-
-
-## MRIqc script for ADNI fMRI data on IU Big Red 200 HPC
-#
-# written by Saige Rutherford Wolfers
 
 # 1. Grab the subject ID from the input file
 IFS=',' read -r subid <<< \$(sed -n "\$((SLURM_ARRAY_TASK_ID + 1))p" $input_file)
