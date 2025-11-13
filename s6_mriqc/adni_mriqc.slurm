@@ -7,8 +7,8 @@
 # After running this script, manually submit each generated job array script (they will be in $sdir) with sbatch.
 
 # 1. Set paths
-base="/N/project/statadni/20250922_Saige"
-idir="${base}/adni_db/bids/participants" # BIDS root input dir
+base="/N/project/statadni/2"
+idir="${base}/BIDS_all/" # BIDS root input dir
 odir="${base}/mriqc/results" # output dir
 sdir="${odir}/scripts" # scripts dir
 logdir="${sdir}/logs" # logs dir

@@ -15,6 +15,7 @@ import os
 def main():
     #%% Load anchors that allow us to join dfs from NIFTI and DICOM header data
 
+    # Use subject_dirs + PerSubjectStrategy if your BIDS data is split across multiple root folders
     #subject_dirs = [
     #    "/N/project/statadni/20231219_ADNI/sourcedata_dev_1",
     #    "/N/project/statadni/20231219_ADNI/sourcedata_dev_2",
@@ -23,10 +24,11 @@ def main():
     #]   
     #strategy = PerSubjectStrategy(subject_dirs, modality="fmri")
 
+    # Use DefaultFlatStrategy if your BIDS data is all under a single root folder
     strategy = DefaultFlatStrategy(
-         base_dir="/N/project/statadni/20250922_Saige/adni_db/bids/participants/conversion_info",
+         base_dir="/N/project/statadni/20250922_Saige/adni_db/bids/participants/conversion_info", # Point to folder containing Clinica conversion_info
          modality="fmri",
-         bids_base_dir="/N/project/statadni/20250922_Saige/adni_db/bids/participants"
+         bids_base_dir="/N/project/statadni/20250922_Saige/adni_db/bids/participants" # Point to BIDS root folder
         
      )
 
@@ -73,7 +75,7 @@ def main():
     # print(f"Final merged DataFrame saved with {final_df.shape[0]} rows and {final_df.shape[1]} columns.")
 
     #%% Feature Addition: Extract structural MRI metrics via StructuralProbe
-    probe = StructuralProbe(modalities=["T1w", "FLAIR"], folders=["anat"])
+    probe = StructuralProbe(modalities=["T1w", "FLAIR"], folders=["anat"]) # Adjust modalities as needed, e.g., remove "FLAIR" if only using T1w
     struct_df = probe.run(final_df)
     final_df = pd.concat([final_df.reset_index(drop=True), struct_df.reset_index(drop=True)], axis=1)
     final_df.to_csv("data/anchor_plus_dicom_nifti_struct.csv", index=False)

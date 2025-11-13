@@ -1,0 +1,6 @@
+pandas
+numpy
+pydicom
+nibabel
+tqdm
+plotly

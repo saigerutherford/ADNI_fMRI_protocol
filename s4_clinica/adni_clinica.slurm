@@ -7,16 +7,16 @@
 #SBATCH --mem=90G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=saiwolf@iu.edu
-#SBATCH --job-name=ADNI2_F
-#SBATCH -o cl-ADNI2_F-%j.out-%N
-#SBATCH -e cl-ADNI2_F-%j.err-%N
+#SBATCH --job-name=ADNI_clinica
+#SBATCH -o cl-ADNI-%j.out-%N
+#SBATCH -e cl-ADNI-%j.err-%N
 
 # * Environment
 base="/N/project/statadni"
-ddir="${base}/20231212_ADR012021_UtahBackup/ImagingData/dicomUnzipped/ADNI2_proc_MRI_fMRI_F"
-odir="${base}/20250922_Saige/BIDS/ADNI2_F"
-cdir="${base}/20231219_ADNI/ClinicalData"
-sdir="${base}/20250922_Saige/Clinica/ADNI2_F"
+ddir="${base}/ImagingData/dicomUnzipped/"
+odir="${base}BIDS/"
+cdir="${base}/ClinicalData"
+sdir="${base}/Scripts/Clinica/"
 ldir="${sdir}/logs"
 mkdir -p "${odir}"
 
@@ -33,11 +33,11 @@ clinica \
     -m T1 \
     -m FMRI \
     -m FLAIR \
-    --subjects_list "${sdir}/adni2_f_subs.txt" \
+    --subjects_list "${sdir}/adni_subs.txt" \
     "${ddir}" \
     "${cdir}" \
     "${odir}" \
-    | tee "${ldir}/adni2_f_clinica_log.txt"
+    | tee "${ldir}/adni_clinica_log.txt"
 
 exit
 

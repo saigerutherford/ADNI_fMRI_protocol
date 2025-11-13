@@ -20,9 +20,9 @@ module load apptainer
 
 # Run MRIQC
 apptainer run \
-  --bind /N/project/statadni/20250922_Saige/adni_db/bids/participants:/data:ro \
-  --bind /N/project/statadni/20250922_Saige/mriqc/results/derivatives:/out \
-  /N/project/statadni/20250922_Saige/singularity_images/mriqc-24.0.2.simg \
+  --bind /N/project/statadni/BIDS_all:/data:ro \
+  --bind /N/project/statadni/mriqc/results/derivatives:/out \
+  /N/project/statadni/singularity_images/mriqc-24.0.2.simg \
   /data /out group \
   --no-sub \
   --verbose-reports \

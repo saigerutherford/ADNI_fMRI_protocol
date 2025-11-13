@@ -5,8 +5,8 @@ library(ggrain)   # for geom_rain()
 library(shadowtext)
 
 # ---- data ----
-df_bold <- readr::read_tsv('/Users/saigerutherford/Desktop/temp/group_bold.tsv')
-df_t1   <- readr::read_tsv('/Users/saigerutherford/Desktop/temp/group_T1w.tsv')
+df_bold <- readr::read_tsv('group_bold.tsv')
+df_t1   <- readr::read_tsv('group_T1w.tsv')
 
 # ---- helper: safe SHASH threshold with fallback ----
 compute_thresh <- function(x) {
