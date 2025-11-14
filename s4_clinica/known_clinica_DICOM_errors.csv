@@ -1,0 +1,31 @@
+﻿participant_id,session_id,modality,detail
+sub-ADNI031S0830,ses-M048,T1,Interslice distance varies in the volume (incompatible with NIfTI format)
+sub-ADNI100S0995,ses-M018,T1,Interslice distance varies in the volume (incompatible with NIfTI format)
+sub-ADNI031S0867,ses-M048,T1,Interslice distance varies in the volume (incompatible with NIfTI format)
+sub-ADNI100S0892,ses-M018,T1,Interslice distance varies in the volume (incompatible with NIfTI format)
+sub-ADNI003S6264,ses-M012,T1,Interslice distance varies in the volume (incompatible with NIfTI format)
+sub-ADNI011S4105,ses-M072,T1,Interslice distance varies in the volume (incompatible with NIfTI format)
+sub-ADNI029S0845,ses-M024,T1,Image conversion does not generate an output file
+sub-ADNI094S1267,ses-M024,T1,Image conversion does not generate an output file
+sub-ADNI029S0843,ses-M024,T1,Image conversion does not generate an output file
+sub-ADNI027S0307,ses-M048,T1,Image conversion does not generate an output file
+sub-ADNI057S1269,ses-M024,T1,Image conversion does not generate an output file
+sub-ADNI036S4899,ses-M003,T1,Image conversion does not generate an output file
+sub-ADNI141S0767,ses-M084,FLAIR,Interslice distance varies in the volume (incompatible with NIfTI format)
+sub-ADNI067S5205,ses-M000,FLAIR,Interslice distance varies in the volume (incompatible with NIfTI format)
+sub-ADNI127S4928,ses-M024,FLAIR,Interslice distance varies in the volume (incompatible with NIfTI format)
+sub-ADNI024S4674,ses-M006,FLAIR,Interslice distance varies in the volume (incompatible with NIfTI format)
+sub-ADNI123S2363,ses-M024,FLAIR,Interslice distance varies in the volume (incompatible with NIfTI format)
+sub-ADNI053S4578,ses-M048,FLAIR,Interslice distance varies in the volume (incompatible with NIfTI format)
+sub-ADNI128S4586,ses-M048,FLAIR,Interslice distance varies in the volume (incompatible with NIfTI format)
+sub-ADNI053S4813,ses-M048,FLAIR,Interslice distance varies in the volume (incompatible with NIfTI format)
+sub-ADNI053S5272,ses-M024,FLAIR,Interslice distance varies in the volume (incompatible with NIfTI format)
+sub-ADNI135S6284,ses-M012,FLAIR,Interslice distance varies in the volume (incompatible with NIfTI format)
+sub-ADNI027S5170,ses-M072,FLAIR,Interslice distance varies in the volume (incompatible with NIfTI format)
+sub-ADNI068S0127,ses-M180,FLAIR,Interslice distance varies in the volume (incompatible with NIfTI format)
+sub-ADNI068S2187,ses-M120,FLAIR,Interslice distance varies in the volume (incompatible with NIfTI format)
+sub-ADNI006S4485,ses-M084,fMRI,Image conversion does not generate an output file
+sub-ADNI123S4127,ses-M096,fMRI,Image conversion does not generate an output file
+sub-ADNI016S6802,ses-M000,fMRI,Interslice distance varies in the volume (incompatible with NIfTI format)
+sub-ADNI016S6816,ses-M000,fMRI,Interslice distance varies in the volume (incompatible with NIfTI format)
+sub-ADNI126S4891,ses-M084,fMRI,Interslice distance varies in the volume (incompatible with NIfTI format)

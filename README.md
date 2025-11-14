@@ -1,14 +1,24 @@
 # Alzheimer's Disease Neuroimaging Initiative (ADNI) resting-state functional MRI protocol
+This repository contains detailed instructions and scripts for accessing, downloading, converting DICOMs to NIfTI, organizing data into BIDS format, running MRIQC, preprocessing data with fMRIPrep, and QC-ing the ADNI resting-state fMRI data. 
 
-This repository contains detailed instructions and code for accessing, downloading, converting DICOMs to NIfTI, BIDs-ifying, running MRIQC + fMRIPrep, and QC-ing the ADNI resting-state fMRI data. 
+This protocl is for ADNI 2, GO & 3 resting-state fMRI (it also used the T1w and (if available) T2w images for subjects with fMRI). ADNI 1 does not have rs-fMRI and we did not (yet) process ADNI 4 as Clinica (the software we use for converting DCM to NII and BIDs-ifying the data) does not yet handle ADNI 4 data.
 
-The output of this protocol is high-quality, pre-processed fMRI data in fs-LR 91k space, ready for downstream analyses.
+The output of this protocol is high-quality, pre-processed fMRI data in fs-LR 91k (and MNI, fsnative, fsaverage5) space, ready for downstream analyses.
 
-The repo is organized based on eight steps (described and linked below). Each step has its own directory, with an additional README.md file that contains detailed instructions for that step, including all scripts used. 
+## Quick Start
+
+	1.	Obtain ADNI access & sign DUA.
+	2.	Clone repo + set up environment from env/env_adni.yml.
+	3.	Edit config/config_adni.yaml with your paths & cluster settings.
+	4.	Run make download (or adni_pipeline.py download) to build your LONI collection and mirror locally. 
+	5.	Run make clinica, make mriqc, make fmriprep.
+	6.	Inspect QC reports in s5_post_clinica_qc/, s6_mriqc/, s8_final_qc/.
+	7.	Use included_sessions.tsv for downstream analyses.
+
 
 We attempted to make this process as automated and reproducible as possible. We document the errors we encountered at every step, provide insight on how we troubleshoot and fix the errors, and describe if any manual intervention is needed. At some steps, like quality checking, there are some decisions that may differ across research groups running this protocol. We attempted to justify and transparently expain all decisions made on inclusion/exclusion based on automated QC metrics (at several steps). We provide tables describing the sample size at every step, including how many subjects/sessions were dropped after a QC decision was made. The hope is that this will allow others to arrive at the same sample size. 
 
-This protocl is for ADNI 2, GO & 3 resting-state fMRI (it also used the T1w and (if available) T2w images for subjects with fMRI). ADNI 1 does not have rs-fMRI and we did not (yet) process ADNI 4 as Clinica (the software we use for converting DCM to NII and BIDs-ifying the data) does not yet handle ADNI 4 data. 
+The repo is organized based on eight steps (described and linked below). Each step has its own directory, with an additional README.md file that contains detailed instructions for that step, including all scripts used. 
 
 <div>
 <img src="ADNI_protocol_overview.png" width="900"/>

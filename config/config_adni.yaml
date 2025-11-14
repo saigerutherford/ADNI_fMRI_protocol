@@ -25,7 +25,6 @@ paths:
   raw_dicom_dir: "/path/to/adni/dicom_unzipped"      # Step 3 unzipped tree
 
   # Step 4: Clinica BIDS conversion
-  clinica_caps_dir: "/path/to/adni/clinica_caps"     # CAPs output (if used)
   clinica_bids_dir: "/path/to/adni/clinica_bids"     # BIDS output from Clinica
   clinica_subjects_list: "config/clinica_subjects_list.tsv"
 
@@ -44,7 +43,6 @@ paths:
 containers:
   use_singularity: true
   # Paths to your container images (or Docker images if not using Singularity)
-  clinica_image: "/containers/clinica-0.7.0.sif"
   mriqc_image: "/containers/mriqc-24.0.0.sif"
   fmriprep_image: "/containers/fmriprep-24.0.0.sif"
   freesurfer_license: "/opt/freesurfer/license.txt"
