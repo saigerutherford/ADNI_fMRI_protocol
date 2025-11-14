@@ -1,0 +1,106 @@
+# config/config_adni.yaml
+# Central configuration file for the ADNI rs-fMRI pipeline.
+
+project:
+  name: "ADNI_rs_fMRI"
+  description: "ADNI 2 / GO / 3 resting-state fMRI preprocessing with Clinica, MRIQC, and fMRIPrep."
+  author: "Saige Rutherford"
+
+adni:
+  phases:
+    include: ["GO", "2", "3"]      # ADNI phases to include
+    exclude: ["1", "4"]           # ADNI 1 (no rs-fMRI) & 4 (not yet supported in Clinica)
+  modalities: ["T1w", "BOLD", "T2w"]
+  collection_csv: "/path/to/LONI/ADNI_image_collection.csv"
+  study_files_dir: "/path/to/LONI/ADNI_StudyFiles"
+  # optional: file with diagnosis/site/etc. that you use later
+  participants_tsv: "/path/to/study_files/ADNIMERGE.csv"
+
+paths:
+  project_root: "/path/to/ADNI_fMRI_protocol"        # root of this repo on your system
+
+  # Step 2–3: raw downloads & organized DICOMs
+  raw_zip_dir: "/path/to/adni/raw_zips"              # Step 2 output (zip files from LONI)
+  raw_metadata_dir: "/path/to/adni/raw_metadata"     # CSV/URL lists from LONI
+  raw_dicom_dir: "/path/to/adni/dicom_unzipped"      # Step 3 unzipped tree
+
+  # Step 4: Clinica BIDS conversion
+  clinica_caps_dir: "/path/to/adni/clinica_caps"     # CAPs output (if used)
+  clinica_bids_dir: "/path/to/adni/clinica_bids"     # BIDS output from Clinica
+  clinica_subjects_list: "config/clinica_subjects_list.tsv"
+
+  # Step 6: MRIQC
+  mriqc_output_dir: "/path/to/adni/derivatives/mriqc"
+  mriqc_work_dir: "/scratch/adni/mriqc_work"
+
+  # Step 7: fMRIPrep
+  fmriprep_output_dir: "/path/to/adni/derivatives/fmriprep"
+  fmriprep_work_dir: "/scratch/adni/fmriprep_work"
+
+  # Logs & QC tables
+  logs_dir: "/path/to/adni/logs"
+  qc_dir: "/path/to/adni/qc"
+
+containers:
+  use_singularity: true
+  # Paths to your container images (or Docker images if not using Singularity)
+  clinica_image: "/containers/clinica-0.7.0.sif"
+  mriqc_image: "/containers/mriqc-24.0.0.sif"
+  fmriprep_image: "/containers/fmriprep-24.0.0.sif"
+  freesurfer_license: "/opt/freesurfer/license.txt"
+
+hpc:
+  scheduler: "slurm"         # or "local" if running without a scheduler
+  account: "myaccount"
+  partition: "general"
+  qos: null                  # set to e.g. "long" if needed
+  email: "you@example.com"
+
+  # Defaults you can use inside Slurm templates
+  mriqc:
+    time: "12:00:00"
+    mem_gb: 32
+    cpus_per_task: 8
+    n_tasks: 50              # number of array jobs / subjects per batch
+
+  fmriprep:
+    time: "48:00:00"
+    mem_gb: 64
+    cpus_per_task: 8
+    n_tasks: 40
+
+mriqc:
+  bids_dir: "/path/to/adni/clinica_bids"            # can also reference paths.clinica_bids_dir in your scripts
+  output_dir: "/path/to/adni/derivatives/mriqc"
+  work_dir: "/scratch/adni/mriqc_work"
+  modality: "bold"
+  n_procs: 8
+  mem_gb: 32
+  anat_only: false
+  participant_label_file: "config/mriqc_participant_labels.txt"
+  bids_filter_file: "config/mriqc_bids_filter.json"
+  no_sub: false             # set true if you only want group-level
+
+fmriprep:
+  bids_dir: "/path/to/adni/clinica_bids"
+  output_dir: "/path/to/adni/derivatives/fmriprep"
+  work_dir: "/scratch/adni/fmriprep_work"
+
+  # Common fMRIPrep options
+  output_spaces:
+    - "MNI152NLin2009cAsym"
+    - "fsLR:den-91k"
+  use_syn_sdc: true         # --use-syn-sdc
+  force_no_fmap: true       # to safely handle missing PhaseEncodingDirection / fieldmaps
+  low_mem: false
+  n_procs: 8
+  omp_nthreads: 4
+  mem_gb: 64
+  bids_filter_file: "config/fmriprep_bids_filter.json"
+
+qc:
+  post_clinica_qc_table: "s5_post_clinica_qc/post_clinica_qc.tsv"
+  mriqc_thresholds_file: "config/mriqc_thresholds.tsv"
+  mriqc_qc_table: "s6_mriqc/mriqc_qc_decisions.tsv"
+  final_inclusion_table: "s8_final_qc/included_sessions.tsv"
+  final_exclusion_table: "s8_final_qc/excluded_sessions.tsv"
