@@ -35,9 +35,19 @@ while IFS= read -r sub; do
   out_slurm="${sub}_adni_clinica.slurm"
   cp "$TEMPLATE" "$out_slurm"
 
-  sed -i "s|job-name=ADNI|job-name=ADNI_${sub}|" "$out_slurm"
-  sed -i "s|cl-ADNI|cl-ADNI_${sub}|" "$out_slurm"
-  sed -i "s|adni_subs|${sub}|" "$out_slurm"
-  sed -i "s|adni_clinica_log|adni_${sub}_clinica_log|" "$out_slurm"
+  # Use a portable sed -i implementation (macOS/BSD vs GNU):
+  if sed --version >/dev/null 2>&1; then
+    # GNU sed
+    sed -i "s|job-name=ADNI|job-name=ADNI_${sub}|" "$out_slurm"
+    sed -i "s|cl-ADNI|cl-ADNI_${sub}|" "$out_slurm"
+    sed -i "s|adni_subs|${sub}|" "$out_slurm"
+    sed -i "s|adni_clinica_log|adni_${sub}_clinica_log|" "$out_slurm"
+  else
+    # BSD/macOS sed requires a backup suffix, use inline edit with temp backup
+    sed -i '' "s|job-name=ADNI|job-name=ADNI_${sub}|" "$out_slurm"
+    sed -i '' "s|cl-ADNI|cl-ADNI_${sub}|" "$out_slurm"
+    sed -i '' "s|adni_subs|${sub}|" "$out_slurm"
+    sed -i '' "s|adni_clinica_log|adni_${sub}_clinica_log|" "$out_slurm"
+  fi
 
 done < "$SUB_LIST"

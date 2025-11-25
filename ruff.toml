@@ -1,0 +1,14 @@
+# Ruff configuration for ADNI_fMRI_protocol
+
+line-length = 100
+target-version = "py311"
+
+[lint]
+select = ["E", "F", "W", "B", "I"]
+ignore = [
+  # Allow unused imports in __init__ and tests for convenience
+  "F401",
+]
+
+[lint.per-file-ignores]
+"utils/tests/*" = ["D", "S101", "PLR2004"]

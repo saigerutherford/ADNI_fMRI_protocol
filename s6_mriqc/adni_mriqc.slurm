@@ -18,6 +18,7 @@
 set -euo pipefail
 
 CONFIG_PATH=""
+DRY_RUN=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -25,13 +26,17 @@ while [[ $# -gt 0 ]]; do
       CONFIG_PATH="$2"
       shift 2
       ;;
+    --dry-run)
+      DRY_RUN=1
+      shift 1
+      ;;
     -h|--help)
-      echo "Usage: $0 [--config /path/to/config.yaml]" >&2
+      echo "Usage: $0 [--config /path/to/config.yaml] [--dry-run]" >&2
       exit 0
       ;;
     *)
       echo "Unknown argument: $1" >&2
-      echo "Usage: $0 [--config /path/to/config.yaml]" >&2
+      echo "Usage: $0 [--config /path/to/config.yaml] [--dry-run]" >&2
       exit 1
       ;;
   esac
@@ -90,11 +95,13 @@ donedir="${sdir}/done"
 mkdir -p "$sdir" "$logdir" "$deriv_root" "$tmp_work_root" "$donedir"
 
 # 3. Set Apptainer image path and ensure it exists (optional auto-build)
-module load apptainer
-# If the specified image does not exist, try building from the matching MRIQC Docker image.
-if [[ -n "${img_path:-}" && ! -f "$img_path" ]]; then
-  echo "[adni_mriqc] MRIQC image not found at $img_path; attempting to build from docker://nipreps/mriqc:24.0.2" >&2
-  apptainer build "$img_path" "docker://nipreps/mriqc:24.0.2"
+if [[ "$DRY_RUN" -eq 0 ]]; then
+  module load apptainer
+  # If the specified image does not exist, try building from the matching MRIQC Docker image.
+  if [[ -n "${img_path:-}" && ! -f "$img_path" ]]; then
+    echo "[adni_mriqc] MRIQC image not found at $img_path; attempting to build from docker://nipreps/mriqc:24.0.2" >&2
+    apptainer build "$img_path" "docker://nipreps/mriqc:24.0.2"
+  fi
 fi
 
 
@@ -125,6 +132,11 @@ for chunk_file in ${split_prefix}*; do
   job_script="${sdir}/mriqc_array_${part_suffix}.slurm"
   num_jobs=$(wc -l < "$input_file")
   max_index=$((num_jobs - 1))
+
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "[adni_mriqc] (dry-run) would create job script $job_script with $num_jobs array entries from $input_file" >&2
+    continue
+  fi
 
   cut -d',' -f1 "$input_file" | sort -u | while read subid; do
     mkdir -p "${logdir}/${subid}"

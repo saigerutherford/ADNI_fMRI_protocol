@@ -9,16 +9,33 @@
 #   - paths.fmriprep_results_root   : root for scripts/logs/tmp_workdirs/done
 #   - paths.fmriprep_heuristics_csv : CSV with subject/session heuristics
 #   - containers.fmriprep_image     : Apptainer/Singularity image path
-#   - containers.freesurfer_license : FreeSurfer # 3. Apptainer module is required; image path comes from config.
-module load apptainer
-   ;;
+#   - containers.freesurfer_license : FreeSurfer license file on the host
+#
+# Optional arguments:
+#   --config PATH   Use a specific YAML config file instead of the default.
+#
+set -euo pipefail
+
+CONFIG_PATH=""
+DRY_RUN=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --config)
+      CONFIG_PATH="$2"
+      shift 2
+      ;;
+    --dry-run)
+      DRY_RUN=1
+      shift 1
+      ;;
     -h|--help)
-      echo "Usage: $0 [--config /path/to/config.yaml]" >&2
+      echo "Usage: $0 [--config /path/to/config.yaml] [--dry-run]" >&2
       exit 0
       ;;
     *)
       echo "Unknown argument: $1" >&2
-      echo "Usage: $0 [--config /path/to/config.yaml]" >&2
+      echo "Usage: $0 [--config /path/to/config.yaml] [--dry-run]" >&2
       exit 1
       ;;
   esac
@@ -85,7 +102,9 @@ donedir="${sdir}/done"
 mkdir -p "$sdir" "$logdir" "$filterdir" "$deriv_root" "$tmp_work_root" "$donedir"
 
 # 3. Set Apptainer image path
-module load apptainer
+if [[ "$DRY_RUN" -eq 0 ]]; then
+  module load apptainer
+fi
 
 # 4. Write dataset_description.json (idempotent)
 cat <<EOF > "$idir/dataset_description.json"
@@ -123,6 +142,11 @@ for chunk_file in ${split_prefix}*; do
   job_script="${sdir}/fmriprep_array_${part_suffix}.slurm"
   num_jobs=$(wc -l < "$input_file")
   max_index=$((num_jobs - 1))
+
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "[run_fmriprep] (dry-run) would create job script $job_script with $num_jobs array entries from $input_file" >&2
+    continue
+  fi
 
   cut -d',' -f1 "$input_file" | sort -u | while read subid; do
     mkdir -p "${logdir}/${subid}"
