@@ -77,6 +77,9 @@ if [[ -n "${img_path:-}" ]]; then
   mkdir -p "$(dirname "$img_path")"
 fi
 
+# Mirror the configured MRIQC output_dir for use inside the job array script.
+odir="$deriv_root"
+
 # 1. Set derived paths
 sdir="${results_root}/scripts"
 logdir="${sdir}/logs"
