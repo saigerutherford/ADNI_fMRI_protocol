@@ -26,7 +26,7 @@ The main driver script is `s6_mriqc/adni_mriqc.slurm`. It:
    - `apptainer build <image_path> docker://nipreps/mriqc:<version>`.
 6. Parses the heuristics CSV to construct a list of subject IDs (one per row that passes QC and is not yet marked as done).
 7. Splits the subject list into chunks of at most 499 entries and writes one job-array input file per chunk.
-8. For each chunk, writes an MRIQC job-array Slurm script that:
+8. For each chunk, writes an MRIQC job-array Slurm script that you submit separately, where each array task:
    - loads `apptainer`,
    - picks the subject ID for the current `SLURM_ARRAY_TASK_ID`,
    - creates a temporary work directory under `paths.mriqc_results_root`,
@@ -47,6 +47,14 @@ make mriqc
 
 (Adjust Slurm account, partition, and resource requests inside the generated `mriqc_array_*.slurm` scripts as needed for your cluster, or expose them via additional config keys.)
 
+To inspect what would be run without touching Apptainer or generating job scripts, use the dry-run mode:
+
+```bash
+bash s6_mriqc/adni_mriqc.slurm --config config/config_adni.yaml --dry-run
+```
+
+This prints, for each CSV chunk, which `mriqc_array_*.slurm` script would be created and how many array entries it would contain.
+
 ## 6.2) Group-level MRIQC
 
 After participant-level MRIQC has completed, you can run group-level MRIQC to aggregate metrics and generate group reports.
@@ -62,6 +70,12 @@ The script `s6_mriqc/mriqc_group.slurm`:
 sbatch s6_mriqc/mriqc_group.slurm
 ```
 
-The group-level outputs are written under `mriqc.output_dir` as configured in `config/config_adni.yaml`.
+You can perform a dry-run of the group-level step (no Apptainer call) by setting `MRIQC_DRY_RUN=1` in the submission environment, for example:
+
+```bash
+sbatch --export=ALL,ADNI_CONFIG=config/config_adni.yaml,MRIQC_DRY_RUN=1 s6_mriqc/mriqc_group.slurm
+```
+
+The group-level outputs (when not in dry-run) are written under `mriqc.output_dir` as configured in `config/config_adni.yaml`.
 
 Now, continue on to Step 7 (`s7_fmriprep/README.md`).
