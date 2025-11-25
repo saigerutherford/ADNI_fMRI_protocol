@@ -10,9 +10,19 @@ from parsers.anchors import AnchorTable
 from tqdm import tqdm
 import pandas as pd
 import os
+import sys
+from pathlib import Path
+
+# Ensure repo root (so we can import utils.config_tools) is on sys.path
+REPO_ROOT = Path(__file__).resolve().parents[3]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from utils.config_tools import load_config, get_value  # type: ignore
+
 #%%
 
-def main():
+def main(config_path: str | None = None):
     #%% Load anchors that allow us to join dfs from NIFTI and DICOM header data
 
     # Use subject_dirs + PerSubjectStrategy if your BIDS data is split across multiple root folders
@@ -24,13 +34,19 @@ def main():
     #]   
     #strategy = PerSubjectStrategy(subject_dirs, modality="fmri")
 
-    # Use DefaultFlatStrategy if your BIDS data is all under a single root folder
+    # Use DefaultFlatStrategy if your BIDS data is all under a single root folder.
+    # Paths are now read from config/config_adni.yaml via utils.config_tools:
+    #   - paths.clinica_conversion_info_dir : folder containing Clinica conversion_info
+    #   - paths.clinica_bids_dir            : BIDS root folder
+    cfg = load_config(config_path)
+    conv_info_dir = get_value(cfg, "paths.clinica_conversion_info_dir")
+    bids_base_dir = get_value(cfg, "paths.clinica_bids_dir")
+
     strategy = DefaultFlatStrategy(
-         base_dir="/N/project/statadni/20250922_Saige/adni_db/bids/participants/conversion_info", # Point to folder containing Clinica conversion_info
-         modality="fmri",
-         bids_base_dir="/N/project/statadni/20250922_Saige/adni_db/bids/participants" # Point to BIDS root folder
-        
-     )
+        base_dir=conv_info_dir,
+        modality="fmri",
+        bids_base_dir=bids_base_dir,
+    )
 
     anchors = AnchorTable(strategy=strategy)
     anchor_df = anchors.get_df()
@@ -83,4 +99,23 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description=(
+            "Build anchor + DICOM + NIfTI+JSON + structural feature table "
+            "for post-Clinica QC, using paths from config/config_adni.yaml."
+        )
+    )
+    parser.add_argument(
+        "--config",
+        dest="config_path",
+        default=None,
+        help=(
+            "Optional path to a YAML config file. If omitted, uses $ADNI_CONFIG "
+            "or config/config_adni.yaml."
+        ),
+    )
+    args = parser.parse_args()
+
+    main(config_path=args.config_path)

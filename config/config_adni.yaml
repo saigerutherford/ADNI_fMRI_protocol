@@ -25,16 +25,21 @@ paths:
   raw_dicom_dir: "/path/to/adni/dicom_unzipped"      # Step 3 unzipped tree
 
   # Step 4: Clinica BIDS conversion
-  clinica_bids_dir: "/path/to/adni/clinica_bids"     # BIDS output from Clinica
+  clinica_bids_dir: "/path/to/adni/clinica_bids"     # BIDS output from Clinica (merged BIDS_all)
+  clinica_bids_individual_dir: "/path/to/adni/BIDS_individual"  # Optional per-subject Clinica BIDS root
+  clinica_conversion_info_dir: "/path/to/adni/clinica_conversion_info"  # Folder containing Clinica conversion_info/v*/fmri_paths.tsv
   clinica_subjects_list: "config/clinica_subjects_list.tsv"
 
   # Step 6: MRIQC
-  mriqc_output_dir: "/path/to/adni/derivatives/mriqc"
-  mriqc_work_dir: "/scratch/adni/mriqc_work"
+  mriqc_output_dir: "/path/to/adni/derivatives/mriqc"   # MRIQC derivatives root (mounted as /out)
+  mriqc_work_dir: "/scratch/adni/mriqc_work"             # MRIQC work dir (mounted as /work)
+  mriqc_results_root: "/path/to/adni/mriqc/results"       # Root for scripts/logs/tmp_workdirs, etc.
 
   # Step 7: fMRIPrep
-  fmriprep_output_dir: "/path/to/adni/derivatives/fmriprep"
-  fmriprep_work_dir: "/scratch/adni/fmriprep_work"
+  fmriprep_output_dir: "/path/to/adni/derivatives/fmriprep"   # fMRIPrep derivatives root (mounted as /out)
+  fmriprep_work_dir: "/scratch/adni/fmriprep_work"             # fMRIPrep work dir (mounted as /work)
+  fmriprep_results_root: "/path/to/adni/fmriprep/results"      # Root for scripts/logs/tmp_workdirs, etc.
+  fmriprep_heuristics_csv: "/path/to/adni/fmriprep/slurm/final_heuristics_applied_all_subjects_sessions_grouped_CLEAN.csv"
 
   # Logs & QC tables
   logs_dir: "/path/to/adni/logs"
