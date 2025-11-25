@@ -1,31 +1,97 @@
 #!/bin/bash
 
-# MRIQC job array setup script for ADNI fMRI data on IU Big Red 200 HPC. 
-# This script will create job_array_input files and corresponding SLURM job array scripts to process subjects in batches of 499 (IU SLURM job max is 499).
-# Written by Saige Rutherford Wolfers
+# Config-driven MRIQC job array setup script for ADNI fMRI data.
+#
+# This script will create job_array_input files and corresponding SLURM job
+# array scripts to process subjects in batches of 499.
+# Paths are read from config/config_adni.yaml via utils.config_tools:
+#   - mriqc.bids_dir             : BIDS root input dir
+#   - mriqc.output_dir           : MRIQC derivatives root (mounted as /out)
+#   - mriqc.work_dir             : MRIQC work dir (mounted as /work)
+#   - paths.mriqc_results_root   : root for scripts/logs/tmp_workdirs/done
+#   - paths.fmriprep_heuristics_csv : CSV with subject/session info
+#   - containers.mriqc_image     : Apptainer/Singularity image path for MRIQC
+#
+# Usage:
+#   bash adni_mriqc.slurm [--config /path/to/config.yaml]
 
-# After running this script, manually submit each generated job array script (they will be in $sdir) with sbatch.
+set -euo pipefail
 
-# 1. Set paths
-base="/N/project/statadni/2"
-idir="${base}/BIDS_all/" # BIDS root input dir
-odir="${base}/mriqc/results" # output dir
-sdir="${odir}/scripts" # scripts dir
-logdir="${sdir}/logs" # logs dir
-csv_path="${base}/fmriprep/slurm/final_heuristics_applied_all_subjects_sessions_grouped_CLEAN.csv" # CSV with subject and session info
-tmp_work_root="${odir}/tmp_workdirs" # root for temporary work dirs
-donedir="${sdir}/done" # dir to track completed subjects
+CONFIG_PATH=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --config)
+      CONFIG_PATH="$2"
+      shift 2
+      ;;
+    -h|--help)
+      echo "Usage: $0 [--config /path/to/config.yaml]" >&2
+      exit 0
+      ;;
+    *)
+      echo "Unknown argument: $1" >&2
+      echo "Usage: $0 [--config /path/to/config.yaml]" >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [[ -n "$CONFIG_PATH" ]]; then
+  idir=$(python -m utils.config_tools mriqc.bids_dir --config "$CONFIG_PATH")
+  deriv_root=$(python -m utils.config_tools mriqc.output_dir --config "$CONFIG_PATH")
+  work_root=$(python -m utils.config_tools mriqc.work_dir --config "$CONFIG_PATH")
+  results_root=$(python -m utils.config_tools paths.mriqc_results_root --config "$CONFIG_PATH")
+  csv_path=$(python -m utils.config_tools paths.fmriprep_heuristics_csv --config "$CONFIG_PATH")
+  img_path=$(python -m utils.config_tools containers.mriqc_image --config "$CONFIG_PATH")
+else
+  idir=$(python -m utils.config_tools mriqc.bids_dir)
+  deriv_root=$(python -m utils.config_tools mriqc.output_dir)
+  work_root=$(python -m utils.config_tools mriqc.work_dir)
+  results_root=$(python -m utils.config_tools paths.mriqc_results_root)
+  csv_path=$(python -m utils.config_tools paths.fmriprep_heuristics_csv)
+  img_path=$(python -m utils.config_tools containers.mriqc_image)
+fi
+
+if [[ -z "${idir:-}" || -z "${deriv_root:-}" || -z "${work_root:-}" || -z "${results_root:-}" || -z "${csv_path:-}" ]]; then
+  echo "[adni_mriqc] One or more required config values are missing or empty" >&2
+  echo "  mriqc.bids_dir           = '${idir:-}'" >&2
+  echo "  mriqc.output_dir         = '${deriv_root:-}'" >&2
+  echo "  mriqc.work_dir           = '${work_root:-}'" >&2
+  echo "  paths.mriqc_results_root = '${results_root:-}'" >&2
+  echo "  paths.fmriprep_heuristics_csv = '${csv_path:-}'" >&2
+  exit 1
+fi
+
+if [[ ! -d "$idir" ]]; then
+  echo "[adni_mriqc] BIDS root does not exist: $idir" >&2
+  exit 1
+fi
+
+if [[ ! -f "$csv_path" ]]; then
+  echo "[adni_mriqc] Heuristics CSV not found: $csv_path" >&2
+  exit 1
+fi
+
+if [[ -n "${img_path:-}" ]]; then
+  mkdir -p "$(dirname "$img_path")"
+fi
+
+# 1. Set derived paths
+sdir="${results_root}/scripts"
+logdir="${sdir}/logs"
+tmp_work_root="${results_root}/tmp_workdirs"
+donedir="${sdir}/done"
 
 # 2. Ensure required dirs
-mkdir -p "$sdir" "$logdir" "$odir/derivatives" "$base/singularity_images" "${odir}/tmp_workdirs" "$donedir"
+mkdir -p "$sdir" "$logdir" "$deriv_root" "$tmp_work_root" "$donedir"
 
-# 3. Set Apptainer image path
+# 3. Set Apptainer image path and ensure it exists (optional auto-build)
 module load apptainer
-img_path="${base}/singularity_images/mriqc-24.0.2.simg" # Apptainer image path to MRIQC version 24.0.2
-# Build the image if it doesn't exist
-if [ ! -f "$img_path" ]; then
-    echo "Building container..."
-    apptainer build "$img_path" "docker://nipreps/mriqc:24.0.2"
+# If the specified image does not exist, try building from the matching MRIQC Docker image.
+if [[ -n "${img_path:-}" && ! -f "$img_path" ]]; then
+  echo "[adni_mriqc] MRIQC image not found at $img_path; attempting to build from docker://nipreps/mriqc:24.0.2" >&2
+  apptainer build "$img_path" "docker://nipreps/mriqc:24.0.2"
 fi
 
 
@@ -103,7 +169,7 @@ donefile="${donedir}/\${subid}.done"
 # 4. Run MRIQC
 apptainer run \\
   --bind ${idir}:/data:ro \\
-  --bind ${odir}/derivatives:/out \\
+  --bind ${deriv_root}:/out \\
   --bind "\$workdir":/work \\
   ${img_path} \\
   /data \\
