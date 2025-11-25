@@ -1,45 +1,98 @@
 #!/bin/bash
 
-# 1. Set paths
-base="/N/project/statadni/20250922_Saige"
-idir="${base}/adni_db/bids/participants"
-odir="${base}/fmriprep/results"
-sdir="${odir}/scripts"
+# Config-driven fMRIPrep array launcher.
+#
+# Reads paths from config/config_adni.yaml via utils.config_tools:
+#   - fmriprep.bids_dir             : BIDS root (Clinica output)
+#   - fmriprep.output_dir           : fMRIPrep derivatives root (mounted as /out)
+#   - fmriprep.work_dir             : fMRIPrep work dir (mounted as /work)
+#   - paths.fmriprep_results_root   : root for scripts/logs/tmp_workdirs/done
+#   - paths.fmriprep_heuristics_csv : CSV with subject/session heuristics
+#   - containers.fmriprep_image     : Apptainer/Singularity image path
+#   - containers.freesurfer_license : FreeSurfer # 3. Apptainer module is required; image path comes from config.
+module load apptainer
+   ;;
+    -h|--help)
+      echo "Usage: $0 [--config /path/to/config.yaml]" >&2
+      exit 0
+      ;;
+    *)
+      echo "Unknown argument: $1" >&2
+      echo "Usage: $0 [--config /path/to/config.yaml]" >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [[ -n "$CONFIG_PATH" ]]; then
+  idir=$(python -m utils.config_tools fmriprep.bids_dir --config "$CONFIG_PATH")
+  deriv_root=$(python -m utils.config_tools fmriprep.output_dir --config "$CONFIG_PATH")
+  work_root=$(python -m utils.config_tools fmriprep.work_dir --config "$CONFIG_PATH")
+  results_root=$(python -m utils.config_tools paths.fmriprep_results_root --config "$CONFIG_PATH")
+  csv_path=$(python -m utils.config_tools paths.fmriprep_heuristics_csv --config "$CONFIG_PATH")
+  img_path=$(python -m utils.config_tools containers.fmriprep_image --config "$CONFIG_PATH")
+  fs_license=$(python -m utils.config_tools containers.freesurfer_license --config "$CONFIG_PATH")
+else
+  idir=$(python -m utils.config_tools fmriprep.bids_dir)
+  deriv_root=$(python -m utils.config_tools fmriprep.output_dir)
+  work_root=$(python -m utils.config_tools fmriprep.work_dir)
+  results_root=$(python -m utils.config_tools paths.fmriprep_results_root)
+  csv_path=$(python -m utils.config_tools paths.fmriprep_heuristics_csv)
+  img_path=$(python -m utils.config_tools containers.fmriprep_image)
+  fs_license=$(python -m utils.config_tools containers.freesurfer_license)
+fi
+
+if [[ -z "${idir:-}" || -z "${deriv_root:-}" || -z "${work_root:-}" || -z "${results_root:-}" || -z "${csv_path:-}" ]]; then
+  echo "[run_fmriprep] One or more required config values are missing or empty" >&2
+  echo "  fmriprep.bids_dir           = '${idir:-}'" >&2
+  echo "  fmriprep.output_dir         = '${deriv_root:-}'" >&2
+  echo "  fmriprep.work_dir           = '${work_root:-}'" >&2
+  echo "  paths.fmriprep_results_root = '${results_root:-}'" >&2
+  echo "  paths.fmriprep_heuristics_csv = '${csv_path:-}'" >&2
+  exit 1
+fi
+
+if [[ ! -d "$idir" ]]; then
+  echo "[run_fmriprep] BIDS root does not exist: $idir" >&2
+  exit 1
+fi
+
+if [[ ! -f "$csv_path" ]]; then
+  echo "[run_fmriprep] Heuristics CSV not found: $csv_path" >&2
+  exit 1
+fi
+
+if [[ -n "${img_path:-}" && ! -f "$img_path" ]]; then
+  echo "[run_fmriprep] Container image not found at $img_path" >&2
+  exit 1
+fi
+
+if [[ -n "${fs_license:-}" && ! -f "$fs_license" ]]; then
+  echo "[run_fmriprep] FreeSurfer license not found at $fs_license" >&2
+  exit 1
+fi
+
+export TEMPLATEFLOW_HOST_HOME="${TEMPLATEFLOW_HOST_HOME:-$HOME/.cache/templateflow}"
+mkdir -p "${TEMPLATEFLOW_HOST_HOME}"
+
+sdir="${results_root}/scripts"
 logdir="${sdir}/logs"
 filterdir="${sdir}/filters"
-csv_path="${base}/fmriprep/slurm/final_heuristics_applied_all_subjects_sessions_grouped_CLEAN.csv"
-tmp_work_root="${odir}/tmp_workdirs"
-donedir="${sdir}/done" 
-
-export TEMPLATEFLOW_HOST_HOME=$HOME/.cache/templateflow
-mkdir -p ${TEMPLATEFLOW_HOST_HOME}
+tmp_work_root="${results_root}/tmp_workdirs"
+donedir="${sdir}/done"
 
 # 2. Ensure required dirs
-mkdir -p "$sdir" "$logdir" "$filterdir" "$odir/derivatives" "$base/singularity_images" "${odir}/tmp_workdirs" "$donedir"
+mkdir -p "$sdir" "$logdir" "$filterdir" "$deriv_root" "$tmp_work_root" "$donedir"
 
 # 3. Set Apptainer image path
 module load apptainer
-img_path="${base}/singularity_images/fmriprep-25.2.3.simg"
-if [ ! -f "$img_path" ]; then
-    echo "Building container..."
-    apptainer build "$img_path" "docker://nipreps/fmriprep:25.2.3"
-fi
 
-# 4. Write dataset_description.json
+# 4. Write dataset_description.json (idempotent)
 cat <<EOF > "$idir/dataset_description.json"
 {
-  "Name": "ADNI Mejia",
+  "Name": "ADNI rs-fMRI",
   "BIDSVersion": "1.10.1"
 }
-EOF
-
-# 5. Write license file
-cat <<EOF > "$odir/license.txt"
-zzahid@iu.edu
-83913
- *CULSlnbSTYW.
- FSTVdTV4sMyNc
- 9VJ6HnL28eMs4F8rL+u9eCvGcvrKG0Ui7FCd2K/yAFE=
 EOF
 
 # 6. Extract subject-session pairs
@@ -105,8 +158,8 @@ echo "Task ID: \$SLURM_ARRAY_TASK_ID"
 echo "Parsed subid=\$subid"
 
 # 2. Clean up any previous outputs from failed runs.
-rm -rf "${odir}/derivatives/\${subid}/" 2>/dev/null || true
-rm -rf "${odir}/derivatives/sourcedata/freesurfer/\${subid}/" 2>/dev/null || true
+rm -rf "${deriv_root}/\${subid}/" 2>/dev/null || true
+rm -rf "${deriv_root}/sourcedata/freesurfer/\${subid}/" 2>/dev/null || true
 
 # 3. Create per-session log, work and freesurfer directories and filter file.
 #filter_subdir="${filterdir}/\${subid}"
@@ -114,7 +167,7 @@ log_subdir="${logdir}/\${subid}"
 mkdir -p "\$log_subdir"
 
 workdir=\$(mktemp -d "${tmp_work_root}/work_\${subid}_XXXXXX")
-freesurfer_dir="${odir}/derivatives/sourcedata/freesurfer/\${subid}"
+freesurfer_dir="${deriv_root}/sourcedata/freesurfer/\${subid}"
 mkdir -p "\$freesurfer_dir"
 
 donefile="${donedir}/\${subid}.done"
@@ -124,8 +177,8 @@ donefile="${donedir}/\${subid}.done"
 apptainer run \\
   --cleanenv \\
   --bind ${idir}:/data:ro \\
-  --bind ${odir}/derivatives:/out \\
-  --bind ${odir}/license.txt:/license.txt:ro \\
+  --bind ${deriv_root}:/out \\
+  --bind ${fs_license}:/license.txt:ro \\
   --bind ${TEMPLATEFLOW_HOST_HOME}:/opt/templateflow \\
   --bind "\$workdir":/work \\
   --bind "\$freesurfer_dir":/fsdir \\

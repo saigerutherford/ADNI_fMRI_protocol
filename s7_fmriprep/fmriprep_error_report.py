@@ -12,11 +12,22 @@ Usage:
     --crashes /path/to/derivatives/fmriprep \
     --bids /path/to/BIDS_root \
     --out /path/to/report.csv
+
+With config defaults (optional):
+  python fmriprep_error_report.py --config config/config_adni.yaml \
+    --logs /override/logs  # optional; if omitted, logs default from config
 """
 
-import argparse, re, csv
+import argparse, re, csv, sys
 from pathlib import Path
 from typing import List, Tuple, Optional, Dict
+
+# Optional: use config/config_adni.yaml to provide defaults when flags are omitted.
+try:
+    from utils.config_tools import load_config, get_value  # type: ignore
+except Exception:  # import error is non-fatal; script can still run with explicit paths
+    load_config = None  # type: ignore
+    get_value = None  # type: ignore
 
 # ---- Known patterns (triples: regex, category, note) ----
 PATTERNS = [
@@ -167,11 +178,54 @@ def saw_session_filter(text: str) -> bool:
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--config", type=str, default=None,
+                    help=("Optional path to YAML config. If provided and other "
+                          "arguments are omitted, defaults will be drawn from it."))
     ap.add_argument("--logs", action="append", default=[], help="Logs dir (repeatable)")
     ap.add_argument("--crashes", action="append", default=[], help="Derivatives root (repeatable)")
     ap.add_argument("--bids", type=str, default=None, help="BIDS root (for BOLD checks)")
-    ap.add_argument("--out", required=True, help="Output CSV path")
+    ap.add_argument("--out", type=str, default=None, help="Output CSV path")
     args = ap.parse_args()
+
+    cfg = None
+    if args.config and load_config is not None and get_value is not None:
+        try:
+            cfg = load_config(args.config)
+        except Exception as e:  # pragma: no cover - defensive
+            print(f"[fmriprep_error_report] Failed to load config {args.config}: {e}", file=sys.stderr)
+            cfg = None
+
+    # Provide gentle defaults from config if available and user did not specify these explicitly.
+    if cfg is not None:
+        if not args.logs:
+            # Default to fMRIPrep logs under paths.fmriprep_results_root/scripts/logs if present.
+            try:
+                results_root = get_value(cfg, "paths.fmriprep_results_root")
+                log_dir = Path(results_root) / "scripts" / "logs"
+                args.logs = [str(log_dir)]
+            except Exception:
+                pass
+        if not args.crashes:
+            try:
+                deriv_root = get_value(cfg, "fmriprep.output_dir")
+                args.crashes = [str(deriv_root)]
+            except Exception:
+                pass
+        if args.bids is None:
+            try:
+                args.bids = str(get_value(cfg, "fmriprep.bids_dir"))
+            except Exception:
+                pass
+        if args.out is None:
+            try:
+                results_root = get_value(cfg, "paths.fmriprep_results_root")
+                default_out = Path(results_root) / "scripts" / "reports" / "fmriprep_error_report_ALL.csv"
+                args.out = str(default_out)
+            except Exception:
+                pass
+
+    if args.out is None:
+        ap.error("--out is required (or provide --config with paths.fmriprep_results_root set)")
 
     bids_root = Path(args.bids).resolve() if args.bids else None
     if bids_root and not bids_root.exists():
