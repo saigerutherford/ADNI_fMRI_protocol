@@ -111,7 +111,6 @@ echo "Parsing CSV to create job array..."
 while IFS=, read -r subj_raw v1 _; do
     [[ -z "$subj_raw" || -z "$v1" ]] && continue
     subid="sub-ADNI${subj_raw//_/}"
-    sessid=${v1}
     donefile="${donedir}/${subid}.done"
     if [ ! -f "$donefile" ]; then
         pairs+=("${subid}")
@@ -125,7 +124,7 @@ printf "%s\n" "${pairs[@]}" | split -l 499 - "$split_prefix"
 
 
 # 6. Write job array script
-for chunk_file in ${split_prefix}*; do
+for chunk_file in "${split_prefix}"*; do
   part_name=$(basename "$chunk_file")
   part_suffix="${part_name##*_}"  # e.g., 'aa', 'ab', etc.
   input_file="$chunk_file"
@@ -138,7 +137,7 @@ for chunk_file in ${split_prefix}*; do
     continue
   fi
 
-  cut -d',' -f1 "$input_file" | sort -u | while read subid; do
+  cut -d',' -f1 "$input_file" | sort -u | while IFS= read -r subid; do
     mkdir -p "${logdir}/${subid}"
   done
 

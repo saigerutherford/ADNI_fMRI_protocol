@@ -46,9 +46,9 @@ fi
 
 # Run MRIQC
 apptainer run \
-  --bind ${BIDS}:/data:ro \
-  --bind ${OUT}:/out \
-  ${IMG} \
+  --bind "${BIDS}":/data:ro \
+  --bind "${OUT}":/out \
+  "${IMG}" \
   /data /out group \
   --no-sub \
   --verbose-reports \
