@@ -6,12 +6,12 @@ from parsers.structural_probe import StructuralProbe
 from config.dicom_fields import dcm_keep_fields
 from parsers.path_strategies.default_flat import DefaultFlatStrategy
 from parsers.path_strategies.per_subject import PerSubjectStrategy
-from parsers.anchors import AnchorTable
 from tqdm import tqdm
-import pandas as pd
 import os
-import sys
 from pathlib import Path
+
+import pandas as pd
+import sys
 
 # Ensure repo root (so we can import utils.config_tools) is on sys.path
 REPO_ROOT = Path(__file__).resolve().parents[3]
