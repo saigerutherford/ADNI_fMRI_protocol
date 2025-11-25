@@ -42,6 +42,14 @@ The `Makefile` is a thin wrapper over step-specific scripts, parameterized by `C
 - The root README references a Conda env spec at `env/env_adni.yml`. If present, a typical pattern would be to create and activate an environment from that file before running pipeline commands.
 - Post-Clinica QC analysis has its own Python dependencies listed in `s5_post_clinica_qc/analysis/requirements.txt` (pandas, numpy, pydicom, nibabel, tqdm, plotly). Install these into the active environment before running the analysis scripts.
 
+### Config helper and Python utilities
+
+- Central config helper: `utils/config_tools.py`.
+  - From Python: `from utils.config_tools import load_config, get_value`; `cfg = load_config()` (uses `$ADNI_CONFIG` if set, otherwise `config/config_adni.yaml`), then `get_value(cfg, "fmriprep.bids_dir")`.
+  - From shell: `python -m utils.config_tools paths.raw_dicom_dir` or `python -m utils.config_tools fmriprep.bids_dir --config /path/to/config.yaml`. Scalars are printed as plain text; lists/dicts as JSON.
+  - Most Slurm and shell wrappers in `s3_…`, `s4_…`, `s5_…`, `s6_…`, and `s7_…` call this module instead of hardcoding paths.
+- Environment variable `ADNI_CONFIG` can be set to point scripts and tests at an alternate YAML without editing code.
+
 ### Step-specific scripts and one-off commands
 
 These are the main non-Makefile entry points that future agents are likely to use or modify.
@@ -113,9 +121,34 @@ The downstream QC reporting notebook and helper scripts live under `s5_post_clin
 - `s7_fmriprep/explore_fmriprep_errors.ipynb`
   - Notebook for manual exploration of fMRIPrep failure modes using the above CSVs.
 
+### Quick debug runs for MRIQC and fMRIPrep
+
+For debugging or small test runs, you can invoke the MRIQC and fMRIPrep drivers directly instead of going through the `Makefile`:
+
+- MRIQC participant-level driver (generates job arrays based on the heuristics CSV):
+  - `bash s6_mriqc/adni_mriqc.slurm --config config/config_adni.yaml`
+  - Then inspect the generated `mriqc_array_*.slurm` scripts under the configured MRIQC results root and submit selected arrays with `sbatch`.
+- MRIQC group-level aggregation (after participant jobs finish):
+  - `sbatch s6_mriqc/mriqc_group.slurm`
+- fMRIPrep participant-level driver:
+  - `bash s7_fmriprep/run_fmriprep_bids_filter_array_all_SW.sh --config config/config_adni.yaml`
+  - As with MRIQC, this writes one or more `fmriprep_array_*.slurm` scripts; submit only the subjects or arrays you care about while debugging.
+
 ### Tests
 
-There is currently no dedicated automated test suite (e.g., `pytest`, `tests/` package) in this repository. When adding new Python modules (especially under `s5_post_clinica_qc/analysis` or future `utils/` code), consider colocating lightweight tests or notebooks that exercise the new functionality and, if a test runner is introduced later, documenting the exact test command here.
+There is a small pytest-based test suite under `utils/tests`:
+
+- `utils/tests/test_config_tools.py` exercises loading and querying the YAML config via `utils.config_tools`, including its CLI entry point (`python -m utils.config_tools ...`).
+- `utils/tests/test_mriqc_scripts.py` adds lightweight integration tests for `s6_mriqc/adni_mriqc.slurm` and `s6_mriqc/mriqc_group.slurm`, using stub `module`/`apptainer` binaries to validate config handling and error paths.
+
+Typical commands from the repository root (with `pytest` installed in the active environment):
+
+- Run all tests:
+  - `pytest`
+- Run tests in a single file:
+  - `pytest utils/tests/test_config_tools.py`
+- Run a single test:
+  - `pytest utils/tests/test_config_tools.py::test_cli_outputs_scalar_value`
 
 ## High-level architecture
 
@@ -152,6 +185,7 @@ The repository is organized around an 8-step pipeline, with a mixture of manual 
   - **Containers and licenses** (paths to MRIQC/fMRIPrep images, FreeSurfer license).
   - **HPC scheduler defaults** (account, partition, time/memory/CPU for MRIQC and fMRIPrep arrays).
   - **Downstream QC tables** (paths to post-Clinica and MRIQC QC tables and final inclusion/exclusion TSVs).
+- Helper module `utils/config_tools.py` is used throughout the shell and Slurm wrappers to read this YAML, either via direct import in Python or via `python -m utils.config_tools ...` from bash; many scripts also honor `$ADNI_CONFIG` for pointing at alternate configs.
 
 Future changes to paths or resource settings should generally flow through this YAML, with wrapper scripts reading from it rather than hardcoding cluster-specific paths.
 
