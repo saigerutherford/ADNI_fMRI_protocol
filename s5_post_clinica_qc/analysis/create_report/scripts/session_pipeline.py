@@ -1,5 +1,4 @@
 import pandas as pd
-from IPython.display import Markdown, display
 import heuristics as H  # Import all heuristics from separate file
 import os
 from plots import (
