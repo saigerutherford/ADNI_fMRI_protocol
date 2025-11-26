@@ -52,7 +52,6 @@ def compute_sitewise_euler_exclusion(euler_df):
     good_mask = np.logical_or(transformed <= 5, np.isnan(transformed))
     bad_mask = np.logical_not(good_mask)
 
-    good_subjects = list(subjects[good_mask])
     removed_subjects = list(subjects[bad_mask])
 
     euler_flags = pd.Series(False, index=subjects, name="exclude_euler")
