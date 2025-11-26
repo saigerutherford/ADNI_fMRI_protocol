@@ -15,7 +15,16 @@ outputs for use by later pipeline steps.
 
 import argparse
 import os
+import sys
 from pathlib import Path
+
+# Allow running this script directly (so that "scripts" can be imported)
+HERE = Path(__file__).resolve().parent
+SCRIPTS_DIR = HERE / "scripts"
+if str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))
+if str(SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS_DIR))
 
 from scripts.session_pipeline import SessionFilterPipeline
 
