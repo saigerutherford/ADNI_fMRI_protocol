@@ -77,7 +77,7 @@ def print_heuristics_table(pipeline: SessionFilterPipeline) -> None:
         col_widths[3] = max(col_widths[3], len(desc))
 
     def fmt_row(cols):
-        return " | ".join(str(c).ljust(w) for c, w in zip(cols, col_widths))
+        return " | ".join(str(c).ljust(w) for c, w in zip(cols, col_widths, strict=False))
 
     print("Heuristics by phase:\n")
     print(fmt_row(header))
