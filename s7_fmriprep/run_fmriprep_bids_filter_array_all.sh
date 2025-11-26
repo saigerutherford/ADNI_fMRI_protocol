@@ -7,7 +7,7 @@
 #   - fmriprep.output_dir           : fMRIPrep derivatives root (mounted as /out)
 #   - fmriprep.work_dir             : fMRIPrep work dir (mounted as /work)
 #   - paths.fmriprep_results_root   : root for scripts/logs/tmp_workdirs/done
-#   - paths.fmriprep_heuristics_csv : CSV with subject/session heuristics
+#   - paths.fmriprep_heuristics_csv : CSV with subject/session heuristics (per-subject sessions)
 #   - containers.fmriprep_image     : Apptainer/Singularity image path
 #   - containers.freesurfer_license : FreeSurfer license file on the host
 #
@@ -65,7 +65,7 @@ if [[ -z "${idir:-}" || -z "${deriv_root:-}" || -z "${work_root:-}" || -z "${res
   echo "  fmriprep.output_dir         = '${deriv_root:-}'" >&2
   echo "  fmriprep.work_dir           = '${work_root:-}'" >&2
   echo "  paths.fmriprep_results_root = '${results_root:-}'" >&2
-  echo "  paths.fmriprep_heuristics_csv = '${csv_path:-}'" >&2
+  echo "  paths.fmriprep_heuristics_csv (per-subject) = '${csv_path:-}'" >&2
   exit 1
 fi
 

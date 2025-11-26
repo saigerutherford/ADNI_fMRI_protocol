@@ -23,10 +23,47 @@ Once it has finished, there will be four files in `analysis/create_mastersheet/d
 - `anchor_plus_dicom.csv`
 
 
-Now you can run the report notebook to summarize the data and decide which subjects to pass on to the next steps.
+Now you can run the report code to summarize the data and decide which subjects to pass on to the next steps.
 
-There is a Jupyter notebook at `analysis/create_report/main.ipynb` that you can open and run to generate the quality report. It contains detailed, step-by-step instructions and documents the heuristic choices.
+## Heuristics script and outputs
 
-This notebook also generates the CSV file of subject/session heuristics required for MRIQC and fMRIPrep in Steps 6 and 7 (for example, the `paths.fmriprep_heuristics_csv` referenced in `config/config_adni.yaml`).
+The recommended entry point for running heuristics is the script:
+
+- `analysis/create_report/run_session_heuristics.py`
+
+This script wraps the `SessionFilterPipeline` used in the notebook and produces three standardized outputs:
+
+- `s5_post_clinica_qc/analysis/create_report/outputs/missing_t1w.tsv`
+  - All rows dropped by the T1-weighted image existence heuristic.
+- `s5_post_clinica_qc/analysis/create_report/outputs/missing_data.tsv`
+  - All rows dropped because required NIfTI or JSON files are missing after Clinica conversion.
+- `s5_post_clinica_qc/analysis/create_report/outputs/final_heuristics.tsv`
+  - The final per-session table after all heuristics; this is what MRIQC uses (via `qc.heuristics_final_table` in `config/config_adni.yaml`).
+
+The same script can also emit a per-subject sessions CSV used by fMRIPrep. For example:
+
+```bash
+cd s5_post_clinica_qc/analysis/create_report
+python run_session_heuristics.py \
+  --input-csv ../create_mastersheet/data/statadni/anchor_plus_dicom_nifti_struct.csv \
+  --output-dir ./outputs \
+  --fmriprep-subjects-csv /N/project/statadni/20250922_Saige/fmriprep/slurm/final_heuristics_applied_all_subjects_sessions_grouped_CLEAN.csv \
+  --phase-limit 2
+```
+
+That command:
+
+- Runs all configured heuristics (phases 0–2).
+- Writes the three TSVs listed above under `./outputs/`.
+- Writes a grouped `Subject_ID,sessions` CSV at the path specified by `--fmriprep-subjects-csv`.
+
+Configuration wiring:
+
+- `qc.heuristics_final_table` in `config/config_adni.yaml` should point to `outputs/final_heuristics.tsv` and is consumed by the MRIQC driver in `s6_mriqc/adni_mriqc.slurm`.
+- `paths.fmriprep_heuristics_csv` should point to the grouped per-subject CSV and is consumed by the fMRIPrep driver in `s7_fmriprep/run_fmriprep_bids_filter_array_all.sh`.
+
+## Notebook (optional visualization)
+
+There is still a Jupyter notebook at `analysis/create_report/main.ipynb` that you can open to generate plots and a narrative report. The notebook uses the same underlying `SessionFilterPipeline` and heuristics but is now primarily for visualization and exploration.
 
 Now, continue on to Step 6 (`s6_mriqc/README.md`).

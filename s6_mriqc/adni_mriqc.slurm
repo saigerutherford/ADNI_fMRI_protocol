@@ -8,9 +8,9 @@
 #   - mriqc.bids_dir             : BIDS root input dir
 #   - mriqc.output_dir           : MRIQC derivatives root (mounted as /out)
 #   - mriqc.work_dir             : MRIQC work dir (mounted as /work)
-#   - paths.mriqc_results_root   : root for scripts/logs/tmp_workdirs/done
-#   - paths.fmriprep_heuristics_csv : CSV with subject/session info
-#   - containers.mriqc_image     : Apptainer/Singularity image path for MRIQC
+  #   - paths.mriqc_results_root   : root for scripts/logs/tmp_workdirs/done
+  #   - qc.heuristics_final_table  : CSV with subject/session info
+  #   - containers.mriqc_image     : Apptainer/Singularity image path for MRIQC
 #
 # Usage:
 #   bash adni_mriqc.slurm [--config /path/to/config.yaml]
@@ -47,14 +47,14 @@ if [[ -n "$CONFIG_PATH" ]]; then
   deriv_root=$(python -m utils.config_tools mriqc.output_dir --config "$CONFIG_PATH")
   work_root=$(python -m utils.config_tools mriqc.work_dir --config "$CONFIG_PATH")
   results_root=$(python -m utils.config_tools paths.mriqc_results_root --config "$CONFIG_PATH")
-  csv_path=$(python -m utils.config_tools paths.fmriprep_heuristics_csv --config "$CONFIG_PATH")
+  csv_path=$(python -m utils.config_tools qc.heuristics_final_table --config "$CONFIG_PATH")
   img_path=$(python -m utils.config_tools containers.mriqc_image --config "$CONFIG_PATH")
 else
   idir=$(python -m utils.config_tools mriqc.bids_dir)
   deriv_root=$(python -m utils.config_tools mriqc.output_dir)
   work_root=$(python -m utils.config_tools mriqc.work_dir)
   results_root=$(python -m utils.config_tools paths.mriqc_results_root)
-  csv_path=$(python -m utils.config_tools paths.fmriprep_heuristics_csv)
+  csv_path=$(python -m utils.config_tools qc.heuristics_final_table)
   img_path=$(python -m utils.config_tools containers.mriqc_image)
 fi
 
@@ -64,7 +64,7 @@ if [[ -z "${idir:-}" || -z "${deriv_root:-}" || -z "${work_root:-}" || -z "${res
   echo "  mriqc.output_dir         = '${deriv_root:-}'" >&2
   echo "  mriqc.work_dir           = '${work_root:-}'" >&2
   echo "  paths.mriqc_results_root = '${results_root:-}'" >&2
-  echo "  paths.fmriprep_heuristics_csv = '${csv_path:-}'" >&2
+  echo "  qc.heuristics_final_table = '${csv_path:-}'" >&2
   exit 1
 fi
 
