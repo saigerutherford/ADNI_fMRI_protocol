@@ -32,6 +32,68 @@ The repo is organized around eight steps (described and linked below). Each step
 <img src="ADNI_protocol_overview.png" width="900"/>
 </div>
 
+## Pipeline overview (Mermaid)
+
+```mermaid
+flowchart LR
+  %% Config and global inputs
+  CFG["config/config_adni.yaml\n(single source of truth)"]
+  RAW_ZIPS["Raw ADNI zips\n(LONI downloads)"]
+
+  %% Steps 1-2: access and download
+  S1["Step 1: Account & Access\n(s1_setup_account)"]
+  S2["Step 2: Build & Download Collection\n(s2_download)"]
+
+  %% Step 3: organize DICOMs
+  S3["Step 3: Unzip & Organize DICOMs\n(s3_organize)"]
+
+  %% Step 4: Clinica
+  S4["Step 4: Clinica DICOM→NIfTI+BIDS\n(s4_clinica)"]
+
+  %% Step 5: Post-Clinica QC (mastersheet + heuristics)
+  S5a["Step 5a: Create mastersheet\ncreate_mastersheet/main.py"]
+  S5b["Step 5b: Run heuristics\ncreate_report/run_session_heuristics.py"]
+
+  %% Step 6-7: MRIQC and fMRIPrep
+  S6["Step 6: MRIQC\n(s6_mriqc/adni_mriqc.slurm)"]
+  S7["Step 7: fMRIPrep\n(s7_fmriprep/run_fmriprep_bids_filter_array_all.sh)"]
+
+  %% Step 8: Final QC
+  S8["Step 8: Final QC\n(s8_final_qc scripts)"]
+
+  %% Data nodes
+  RAW_DICOM["Unzipped DICOM tree"]
+  BIDS["Clinica BIDS dataset\n(paths.clinica_bids_dir)"]
+  ANCHOR["anchor_plus_dicom_nifti_struct.csv\n(Step 5 mastersheet)"]
+  HEUR_SESS["final_heuristics.tsv\n(qc.heuristics_final_table)\n(session-level)"]
+  HEUR_SUBJ["final_heuristics_applied_all_subjects_sessions_grouped_CLEAN.csv\n(paths.fmriprep_heuristics_csv)\n(subject-level)"]
+  MRIQC_DERIV["MRIQC derivatives\n(paths.mriqc_output_dir)"]
+  FMRIPREP_DERIV["fMRIPrep derivatives\n(paths.fmriprep_output_dir)"]
+  FINAL_INCLUDED["included_sessions.tsv\n(qc.final_inclusion_table)"]
+
+  %% High-level step flow
+  S1 --> S2
+  S2 --> RAW_ZIPS
+  RAW_ZIPS --> S3 --> RAW_DICOM
+  RAW_DICOM --> S4 --> BIDS
+  BIDS --> S5a --> ANCHOR
+  ANCHOR --> S5b
+  S5b --> HEUR_SESS
+  S5b --> HEUR_SUBJ
+  HEUR_SESS --> S6 --> MRIQC_DERIV
+  HEUR_SUBJ --> S7 --> FMRIPREP_DERIV
+  MRIQC_DERIV --> S8
+  FMRIPREP_DERIV --> S8 --> FINAL_INCLUDED
+
+  %% Config-driven edges (dashed)
+  CFG -.paths.raw_* .-> S3
+  CFG -.paths.clinica_* .-> S4
+  CFG -.paths.clinica_conversion_info_dir .-> S5a
+  CFG -.qc.heuristics_final_table .-> S6
+  CFG -.paths.fmriprep_heuristics_csv .-> S7
+  CFG -.qc.* (final tables) .-> S8
+```
+
 ## Step 1.) Account and Access
 
 See `s1_setup_account/README.md`.
