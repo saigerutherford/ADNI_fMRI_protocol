@@ -85,13 +85,13 @@ flowchart LR
   MRIQC_DERIV --> S8
   FMRIPREP_DERIV --> S8 --> FINAL_INCLUDED
 
-  %% Config-driven edges (dashed)
-  CFG -.paths.raw_* .-> S3
-  CFG -.paths.clinica_* .-> S4
-  CFG -.paths.clinica_conversion_info_dir .-> S5a
-  CFG -.qc.heuristics_final_table .-> S6
-  CFG -.paths.fmriprep_heuristics_csv .-> S7
-  CFG -.qc.* (final tables) .-> S8
+  %% Config-driven edges (dashed, unlabeled for clarity)
+  CFG -.-> S3
+  CFG -.-> S4
+  CFG -.-> S5a
+  CFG -.-> S6
+  CFG -.-> S7
+  CFG -.-> S8
 ```
 
 ## Step 1.) Account and Access
