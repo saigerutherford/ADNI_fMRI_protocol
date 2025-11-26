@@ -1,7 +1,7 @@
 """Tests for fMRIPrep Slurm helper scripts.
 
 These mirror the MRIQC script tests but target:
-- s7_fmriprep/run_fmriprep_bids_filter_array_all_SW.sh
+- s7_fmriprep/run_fmriprep_bids_filter_array_all.sh
 - s7_fmriprep/rerun_fmriprep_bold_create_job_array.sh
 """
 
@@ -67,7 +67,7 @@ def test_run_fmriprep_exits_on_missing_required_config(tmp_path: Path, monkeypat
     result = subprocess.run(
         [
             "bash",
-            str(FMRIPREP_DIR / "run_fmriprep_bids_filter_array_all_SW.sh"),
+            str(FMRIPREP_DIR / "run_fmriprep_bids_filter_array_all.sh"),
             "--config",
             str(cfg),
         ],
@@ -82,7 +82,7 @@ def test_run_fmriprep_exits_on_missing_required_config(tmp_path: Path, monkeypat
 
 
 def test_run_fmriprep_errors_when_bids_root_missing(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    """run_fmriprep_bids_filter_array_all_SW.sh errors if BIDS root absent on disk."""
+    """run_fmriprep_bids_filter_array_all.sh errors if BIDS root absent on disk."""
 
     _setup_stub_binaries(tmp_path, monkeypatch)
 
@@ -110,7 +110,7 @@ def test_run_fmriprep_errors_when_bids_root_missing(tmp_path: Path, monkeypatch:
     result = subprocess.run(
         [
             "bash",
-            str(FMRIPREP_DIR / "run_fmriprep_bids_filter_array_all_SW.sh"),
+            str(FMRIPREP_DIR / "run_fmriprep_bids_filter_array_all.sh"),
             "--config",
             str(cfg),
         ],
