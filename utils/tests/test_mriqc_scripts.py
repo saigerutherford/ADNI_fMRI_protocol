@@ -102,7 +102,8 @@ def test_adni_mriqc_uses_explicit_config_over_env(tmp_path: Path, monkeypatch: p
           work_dir: {work_root}
         paths:
           mriqc_results_root: {results_root}
-          fmriprep_heuristics_csv: {heuristics_csv}
+        qc:
+          heuristics_final_table: {heuristics_csv}
         containers:
           mriqc_image: {img_path}
         """.format(
@@ -150,7 +151,8 @@ def test_adni_mriqc_errors_on_missing_required_config_value(
           work_dir: /some/work
         paths:
           mriqc_results_root: /some/results
-          fmriprep_heuristics_csv: /some/heuristics.csv
+        qc:
+          heuristics_final_table: /some/heuristics.csv
         containers:
           mriqc_image: /some/image.sif
         """,
@@ -189,7 +191,8 @@ def test_adni_mriqc_errors_when_bids_dir_missing_on_disk(
           work_dir: /some/work
         paths:
           mriqc_results_root: /some/results
-          fmriprep_heuristics_csv: {heuristics_csv}
+        qc:
+          heuristics_final_table: {heuristics_csv}
         containers:
           mriqc_image: /some/image.sif
         """.format(bids_dir=bids_dir, heuristics_csv=heuristics_csv),
@@ -239,7 +242,8 @@ def test_adni_mriqc_attempts_to_build_image_when_missing(
           work_dir: {work_root}
         paths:
           mriqc_results_root: {results_root}
-          fmriprep_heuristics_csv: {heuristics_csv}
+        qc:
+          heuristics_final_table: {heuristics_csv}
         containers:
           mriqc_image: {img_path}
         """.format(

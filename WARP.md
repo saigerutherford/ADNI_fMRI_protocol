@@ -39,7 +39,8 @@ The `Makefile` is a thin wrapper over step-specific scripts, parameterized by `C
 
 ### Environment and dependencies
 
-- The root README references a Conda env spec at `env/env_adni.yml`. If present, a typical pattern would be to create and activate an environment from that file before running pipeline commands.
+- Primary analysis environment: `env/env_adni.yml` (Python 3.11, scientific stack, PyYAML, pytest). Create and activate this before running most Python utilities, tests, or QC code.
+- Clinica environment: `env/env_clinica.yml` (Python 3.10, `dcm2niix`, `clinica`). Use this when installing and running Clinica for Step 4 if you prefer isolating Clinica dependencies from the main analysis environment.
 - Post-Clinica QC analysis has its own Python dependencies listed in `s5_post_clinica_qc/analysis/requirements.txt` (pandas, numpy, pydicom, nibabel, tqdm, plotly). Install these into the active environment before running the analysis scripts.
 
 ### Config helper and Python utilities
@@ -136,19 +137,27 @@ For debugging or small test runs, you can invoke the MRIQC and fMRIPrep drivers 
 
 ### Tests
 
-There is a small pytest-based test suite under `utils/tests`:
+There is a pytest-based test suite under `utils/tests` that focuses on configuration wiring and HPC script behavior:
 
 - `utils/tests/test_config_tools.py` exercises loading and querying the YAML config via `utils.config_tools`, including its CLI entry point (`python -m utils.config_tools ...`).
-- `utils/tests/test_mriqc_scripts.py` adds lightweight integration tests for `s6_mriqc/adni_mriqc.slurm` and `s6_mriqc/mriqc_group.slurm`, using stub `module`/`apptainer` binaries to validate config handling and error paths.
+- `utils/tests/test_create_dicom_dir_csv.py` verifies that `s3_organize/create_dicom_dir_csv.sh` reads `paths.raw_dicom_dir` from config and writes a well-formed `dicom_dirs.csv`.
+- `utils/tests/test_clinica_scripts.py` covers the Clinica helpers `s4_clinica/create_slurm_script_per_sub.sh` and `s4_clinica/merge_individual_clinica.sh`, checking both error paths (missing config values) and basic merge behavior.
+- `utils/tests/test_create_mastersheet_main.py` checks that `s5_post_clinica_qc/analysis/create_mastersheet/main.py` fails clearly when configured paths are invalid (and includes a skipped smoke test stub for a full run with patched parsers).
+- `utils/tests/test_run_session_heuristics.py` smoke-tests `s5_post_clinica_qc/analysis/create_report/run_session_heuristics.py`, ensuring it produces the expected TSVs and grouped per-subject CSV.
+- `utils/tests/test_mriqc_scripts.py` adds lightweight integration tests for `s6_mriqc/adni_mriqc.slurm` and `s6_mriqc/mriqc_group.slurm`, using stub `module`/`apptainer` binaries to validate config handling, required-key enforcement, image-building behavior, and BIDS-root checks.
+- `utils/tests/test_fmriprep_scripts.py` mirrors the MRIQC tests for `s7_fmriprep/run_fmriprep_bids_filter_array_all.sh` and `s7_fmriprep/rerun_fmriprep_bold_create_job_array.sh`, including rerun-list generation from an error report.
 
-Typical commands from the repository root (with `pytest` installed in the active environment):
+Typical commands from the repository root (with the `env/env_adni.yml` environment active):
 
 - Run all tests:
   - `pytest`
+  - or `make test` (wrapper around `pytest`).
 - Run tests in a single file:
   - `pytest utils/tests/test_config_tools.py`
 - Run a single test:
   - `pytest utils/tests/test_config_tools.py::test_cli_outputs_scalar_value`
+- Lint Python and shell/Slurm scripts:
+  - `make lint` (runs `ruff check .` and `shellcheck` on tracked `*.sh`/`*.slurm` files).
 
 ## High-level architecture
 

@@ -1,6 +1,23 @@
 import pandas as pd
 import heuristics as H  # Import all heuristics from separate file
 import os
+
+# Optional notebook-friendly display utilities. In non-notebook contexts (e.g.,
+# CI or plain scripts) we fall back to simple print-based stubs so that calls to
+# display(Markdown(...)) still work without introducing a hard dependency on
+# IPython.
+try:  # pragma: no cover - behavior is trivial and environment-dependent
+    from IPython.display import display, Markdown
+except Exception:  # noqa: BLE001 - broad to handle absence of IPython cleanly
+    def display(obj):  # type: ignore[no-redef]
+        """Fallback display: print Markdown or plain text to stdout."""
+        print(obj)
+
+    class Markdown(str):  # type: ignore[no-redef]
+        """Lightweight stand-in so Markdown(text) behaves like a string."""
+
+        pass
+
 from plots import (
     render_scan_depth_plot,
     render_repetition_time_plot,
