@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+
+# shellcheck source=/dev/null
 #SBATCH --partition=general
 #SBATCH --account=r01313
 #SBATCH --nodes=1
