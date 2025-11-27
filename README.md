@@ -34,8 +34,9 @@ The repo is organized around eight steps (described and linked below). Each step
 
 ## Pipeline overview (Mermaid)
 
-```mermaid
-flowchart LR
+```
+%%{init: {'themeVariables': { 'fontSize': '18px', 'fontFamily': 'sans-serif' }}}%%
+flowchart TB
   %% Config and global inputs
   CFG["config/config_adni.yaml\n(single source of truth)"]
   RAW_ZIPS["Raw ADNI zips\n(LONI downloads)"]
