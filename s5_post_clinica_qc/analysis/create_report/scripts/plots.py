@@ -1,9 +1,20 @@
 import plotly.express as px
-from IPython.display import Markdown, display
 import ast
 import pandas as pd
 from config import CONFIG
 import os
+
+# Optional notebook-only dependencies
+try:  # pragma: no cover - trivial import guard
+    from IPython.display import Markdown, display
+except ImportError:  # When running in plain Python/CI environments
+    def Markdown(text):  # type: ignore[override]
+        """Fallback Markdown shim when IPython is unavailable."""
+        return text
+
+    def display(*_args, **_kwargs):  # type: ignore[override]
+        """No-op display so scripts can run without IPython."""
+        return None
 
 # Should add a config file for the paramters to consolidate everything.
 
