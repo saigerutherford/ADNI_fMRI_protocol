@@ -33,44 +33,43 @@ The repo is organized around eight steps (described and linked below). Each step
 </div>
 
 ## Pipeline overview (Mermaid)
-
-```
-%%{init: {'themeVariables': { 'fontSize': '18px', 'fontFamily': 'sans-serif' }}}%%
+```mermaid
+%%{init: {'themeVariables': { 'fontSize': '22px' }}}%%
 flowchart TB
   %% Config and global inputs
-  CFG["config/config_adni.yaml\n(single source of truth)"]
-  RAW_ZIPS["Raw ADNI zips\n(LONI downloads)"]
+  CFG["config/config_adni.yaml (single source of truth)"]
+  RAW_ZIPS["Raw ADNI zips (LONI downloads)"]
 
   %% Steps 1-2: access and download
-  S1["Step 1: Account & Access\n(s1_setup_account)"]
-  S2["Step 2: Build & Download Collection\n(s2_download)"]
+  S1["Step 1: Account & Access (s1_setup_account)"]
+  S2["Step 2: Build & Download Collection (s2_download)"]
 
   %% Step 3: organize DICOMs
-  S3["Step 3: Unzip & Organize DICOMs\n(s3_organize)"]
+  S3["Step 3: Unzip & Organize DICOMs (s3_organize)"]
 
   %% Step 4: Clinica
-  S4["Step 4: Clinica DICOM→NIfTI+BIDS\n(s4_clinica)"]
+  S4["Step 4: Clinica DICOM→NIfTI+BIDS (s4_clinica)"]
 
   %% Step 5: Post-Clinica QC (mastersheet + heuristics)
-  S5a["Step 5a: Create mastersheet\ncreate_mastersheet/main.py"]
-  S5b["Step 5b: Run heuristics\ncreate_report/run_session_heuristics.py"]
+  S5a["Step 5a: Create mastersheet create_mastersheet/main.py"]
+  S5b["Step 5b: Run heuristics create_report/run_session_heuristics.py"]
 
   %% Step 6-7: MRIQC and fMRIPrep
-  S6["Step 6: MRIQC\n(s6_mriqc/adni_mriqc.slurm)"]
-  S7["Step 7: fMRIPrep\n(s7_fmriprep/run_fmriprep_bids_filter_array_all.sh)"]
+  S6["Step 6: MRIQC (s6_mriqc/adni_mriqc.slurm)"]
+  S7["Step 7: fMRIPrep (s7_fmriprep/run_fmriprep_bids_filter_array_all.sh)"]
 
   %% Step 8: Final QC
-  S8["Step 8: Final QC\n(s8_final_qc scripts)"]
+  S8["Step 8: Final QC (s8_final_qc scripts)"]
 
   %% Data nodes
   RAW_DICOM["Unzipped DICOM tree"]
-  BIDS["Clinica BIDS dataset\n(paths.clinica_bids_dir)"]
-  ANCHOR["anchor_plus_dicom_nifti_struct.csv\n(Step 5 mastersheet)"]
-  HEUR_SESS["final_heuristics.tsv\n(qc.heuristics_final_table)\n(session-level)"]
-  HEUR_SUBJ["final_heuristics_applied_all_subjects_sessions_grouped_CLEAN.csv\n(paths.fmriprep_heuristics_csv)\n(subject-level)"]
-  MRIQC_DERIV["MRIQC derivatives\n(paths.mriqc_output_dir)"]
-  FMRIPREP_DERIV["fMRIPrep derivatives\n(paths.fmriprep_output_dir)"]
-  FINAL_INCLUDED["included_sessions.tsv\n(qc.final_inclusion_table)"]
+  BIDS["Clinica BIDS dataset (paths.clinica_bids_dir)"]
+  ANCHOR["anchor_plus_dicom_nifti_struct.csv (Step 5 mastersheet)"]
+  HEUR_SESS["final_heuristics.tsv (qc.heuristics_final_table) (session-level)"]
+  HEUR_SUBJ["final_heuristics_applied_all_subjects_sessions_grouped_CLEAN.csv (paths.fmriprep_heuristics_csv) (subject-level)"]
+  MRIQC_DERIV["MRIQC derivatives (paths.mriqc_output_dir)"]
+  FMRIPREP_DERIV["fMRIPrep derivatives (paths.fmriprep_output_dir)"]
+  FINAL_INCLUDED["included_sessions.tsv (qc.final_inclusion_table)"]
 
   %% High-level step flow
   S1 --> S2
