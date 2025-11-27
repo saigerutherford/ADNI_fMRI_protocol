@@ -4,18 +4,18 @@ This step generates a quality report on the data after running Clinica. We provi
 
 You first need to run the script that pulls parameters from the DICOM files and maps this information to the Clinica BIDS output.
 
-The entry point is `analysis/create_mastersheet/main.py`. It is now fully config-driven:
+The entry point is `create_mastersheet/main.py`. It is now fully config-driven:
 
 1. Ensure `config/config_adni.yaml` has the correct paths for your Clinica `conversion_info` tables, BIDS root, and output locations used by the master-sheet code.
 2. Install the required Python libraries into your active environment:
    - `cd s5_post_clinica_qc/analysis`
    - `pip install -r requirements.txt` (or `conda install --file requirements.txt`).
-3. From `s5_post_clinica_qc/analysis/create_mastersheet/`, run:
-   - `python main.py --config ../../../config/config_adni.yaml`
+3. From `s5_post_clinica_qc/create_mastersheet/`, run:
+   - `python main.py --config ../../config/config_adni.yaml`
 
 The script will take a few minutes to run because it needs to read representative DICOMs and NIfTI+JSON headers.
 
-Once it has finished, there will be four files in `analysis/create_mastersheet/data/`:
+Once it has finished, there will be four files in `create_mastersheet/data/`:
 
 - `anchor_plus_dicom_nifti_struct.csv`
 - `anchor_df.csv`
@@ -29,21 +29,21 @@ Now you can run the report code to summarize the data and decide which subjects 
 
 The recommended entry point for running heuristics is the script:
 
-- `analysis/create_report/run_session_heuristics.py`
+- `create_report/run_session_heuristics.py`
 
 This script wraps the `SessionFilterPipeline` used in the notebook and produces three standardized outputs:
 
-- `s5_post_clinica_qc/analysis/create_report/outputs/missing_t1w.tsv`
+- `s5_post_clinica_qc/create_report/outputs/missing_t1w.tsv`
   - All rows dropped by the T1-weighted image existence heuristic.
-- `s5_post_clinica_qc/analysis/create_report/outputs/missing_data.tsv`
+- `s5_post_clinica_qc/create_report/outputs/missing_data.tsv`
   - All rows dropped because required NIfTI or JSON files are missing after Clinica conversion.
-- `s5_post_clinica_qc/analysis/create_report/outputs/final_heuristics.tsv`
+- `s5_post_clinica_qc/create_report/outputs/final_heuristics.tsv`
   - The final per-session table after all heuristics; this is what MRIQC uses (via `qc.heuristics_final_table` in `config/config_adni.yaml`).
 
 The same script can also emit a per-subject sessions CSV used by fMRIPrep. For example:
 
 ```bash
-cd s5_post_clinica_qc/analysis/create_report
+cd s5_post_clinica_qc/create_report
 python run_session_heuristics.py \
   --input-csv ../create_mastersheet/data/statadni/anchor_plus_dicom_nifti_struct.csv \
   --output-dir ./outputs \
@@ -64,6 +64,6 @@ Configuration wiring:
 
 ## Notebook (optional visualization)
 
-There is still a Jupyter notebook at `analysis/create_report/main.ipynb` that you can open to generate plots and a narrative report. The notebook uses the same underlying `SessionFilterPipeline` and heuristics but is now primarily for visualization and exploration.
+There is still a Jupyter notebook at `create_report/main.ipynb` that you can open to generate plots and a narrative report. The notebook uses the same underlying `SessionFilterPipeline` and heuristics but is now primarily for visualization and exploration.
 
 Now, continue on to Step 6 (`s6_mriqc/README.md`).
